@@ -73,12 +73,3 @@ It generates music learning plans, tracks practice progress, and powers discover
 - `GET /plans`
 - `POST /plans/active`
 
-All non-auth app endpoints require `Authorization: Bearer <token>`.
-
----
-
-## Notes
-
-- Frontend auth no longer depends on Supabase and now uses the backend JWT auth flow.
-# MusePath
-# MusePath
