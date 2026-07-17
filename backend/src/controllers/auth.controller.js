@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { User } from '../models/User.js'
 import { BlacklistToken } from '../models/BlacklistToken.js'
-import { AUTH_COOKIE_NAME, createToken } from '../middleware/auth.js'
+import { AUTH_COOKIE_NAME, authCookieOptions, createToken } from '../middleware/auth.js'
 import { sendServerError } from './controller.helpers.js'
 
 function toClientUser(user) {
@@ -29,7 +29,7 @@ export async function signupController(req, res) {
         })
 
         const token = createToken(user)
-        res.cookie(AUTH_COOKIE_NAME, token)
+        res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions)
         return res.status(201).json({ user: toClientUser(user) })
     } catch (error) {
         return sendServerError(res, 'Error in signupController', 'Failed to sign up', error)
@@ -48,7 +48,7 @@ export async function loginController(req, res) {
         if (!ok) return res.status(401).json({ error: 'Invalid credentials' })
 
         const token = createToken(user)
-        res.cookie(AUTH_COOKIE_NAME, token)
+        res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions)
         return res.status(200).json({ user: toClientUser(user) })
     } catch (error) {
         return sendServerError(res, 'Error in loginController', 'Failed to login', error)
@@ -72,6 +72,6 @@ export async function logoutController(req, res) {
         await BlacklistToken.create({ token })
     }
 
-    res.clearCookie(AUTH_COOKIE_NAME)
+    res.clearCookie(AUTH_COOKIE_NAME, authCookieOptions)
     return res.status(200).json({ success: true })
 }
