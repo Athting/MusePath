@@ -3,8 +3,15 @@ import { BlacklistToken } from '../models/BlacklistToken.js'
 
 export const AUTH_COOKIE_NAME = 'token'
 const JWT_SECRET = process.env.JWT_SECRET
+const isProduction = process.env.NODE_ENV === 'production'
 
-/** Generates a signed JWT for a user. */
+export const authCookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/'
+}
+
 export function createToken(user) {
     const payload = {
         id: user._id.toString(),
