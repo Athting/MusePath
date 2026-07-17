@@ -7,11 +7,7 @@ import apiRouter from './routes/api.js'
 const app = express()
 const frontendUrl = process.env.FRONTEND_URL
 
-app.use(express.json({ 
-    limit: '2mb', 
-    type: ['application/json', 'text/plain'] 
-}))
-
+app.use(express.json())
 app.use(cookieParser())
 
 app.use(cors({
