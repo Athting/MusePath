@@ -1,17 +1,34 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://musepath-1.onrender.com/api'
+const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "https://musepath-1.onrender.com/api";
 
 async function request(path, options = {}) {
+    const token = localStorage.getItem("token");
+
     const res = await fetch(`${API_URL}${path}`, {
-        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            ...(token
+                ? {
+                      Authorization: `Bearer ${token}`
+                  }
+                : {}),
             ...options.headers
         },
         ...options
-    })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data.error || data.message || `Server error (${res.status})`)
-    return data
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(
+            data.error ||
+                data.message ||
+                `Server error (${res.status})`
+        );
+    }
+
+    return data;
 }
 
 export const api = {

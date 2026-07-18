@@ -1,22 +1,60 @@
-const API_URL = 'https://musepath-1.onrender.com/api'
+const API_URL = import.meta.env.VITE_API_URL;
 
 async function authRequest(path, options = {}) {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(`${API_URL}${path}`, {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', ...options.headers },
+        headers: {
+            "Content-Type": "application/json",
+            ...(token
+                ? {
+                      Authorization: `Bearer ${token}`
+                  }
+                : {}),
+            ...options.headers
+        },
         ...options
-    })
-    const data = await response.json().catch(() => ({}))
-    if (!response.ok) throw new Error(data.error || 'Authentication request failed')
-    return data
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.error || "Authentication failed");
+    }
+
+    return data;
 }
 
-export const register = ({ username, email, password }) =>
-    authRequest('/auth/signup', { method: 'POST', body: JSON.stringify({ username, email, password }) })
+export async function login(body) {
+    const data = await authRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify(body)
+    });
 
-export const login = ({ email, password }) =>
-    authRequest('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
+    localStorage.setItem("token", data.token);
 
-export const logout = () => authRequest('/auth/logout', { method: 'POST' })
+    return data;
+}
 
-export const getMe = () => authRequest('/auth/me')
+export async function register(body) {
+    const data = await authRequest("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify(body)
+    });
+
+    localStorage.setItem("token", data.token);
+
+    return data;
+}
+
+export function logout() {
+    localStorage.removeItem("token");
+
+    return authRequest("/auth/logout", {
+        method: "POST"
+    });
+}
+
+export function getMe() {
+    return authRequest("/auth/me");
+}
