@@ -30,7 +30,10 @@ export async function signupController(req, res) {
 
         const token = createToken(user)
         res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions)
-        return res.status(201).json({ user: toClientUser(user) })
+        return res.status(201).json({
+            token,
+            user: toClientUser(user)
+        })
     } catch (error) {
         return sendServerError(res, 'Error in signupController', 'Failed to sign up', error)
     }
@@ -49,7 +52,10 @@ export async function loginController(req, res) {
 
         const token = createToken(user)
         res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions)
-        return res.status(200).json({ user: toClientUser(user) })
+        return res.status(200).json({
+            token,
+            user: toClientUser(user)
+        })
     } catch (error) {
         return sendServerError(res, 'Error in loginController', 'Failed to login', error)
     }
@@ -66,7 +72,9 @@ export async function getMeController(req, res) {
 }
 
 export async function logoutController(req, res) {
-    const token = req.cookies?.[AUTH_COOKIE_NAME]
+    const authHeader = req.headers.authorization;
+
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : req.cookies?.[AUTH_COOKIE_NAME];
 
     if (token) {
         await BlacklistToken.create({ token })
